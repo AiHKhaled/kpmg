@@ -5,30 +5,15 @@ import csv
 from django.http import HttpResponse
 from django.db import connection
 
+from django.core.paginator import Paginator
 
-
-def getTableProjects(status_filter=None):
-
-    base_query = """
-        SELECT projects.id, projects.name, projects.status, 
-        SUM(CASE WHEN tasks.status = 'To Do' THEN 1 ELSE 0 END) AS to_do,
-        SUM(CASE WHEN tasks.status = 'In Progress' THEN 1 ELSE 0 END) AS in_progress,
-        SUM(CASE WHEN tasks.status = 'Done' THEN 1 ELSE 0 END) AS completed,
-        SUM(CASE WHEN tasks.status = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled
-        FROM reporter_project AS projects
-        JOIN reporter_task AS tasks ON projects.id = tasks.project_id
-        GROUP BY projects.id
-    """
-    if status_filter:
-        sql_query = f"{base_query} WHERE tasks.status = %s"
-        tableProjects = Project.objects.raw(sql_query, [status_filter])
-    else:
-        tableProjects = Project.objects.raw(base_query)
-
-    return tableProjects
 
 def data_view(request):
     
+    page = request.GET.get('page', 1)
+    items_per_page = 10  # Adjust this as needed
+
+
     totalProjects = Project.objects.count()
     activeProjects = Project.objects.filter(status='Active').count() 
     activeProjects  = str(activeProjects * 100 / totalProjects) + "%" 
@@ -45,17 +30,25 @@ def data_view(request):
         """
     )
 
+    tableProjects = Project.objects.raw(
+        """
+        SELECT projects.id, projects.name, projects.status, 
+        SUM(CASE WHEN tasks.status = 'To Do' THEN 1 ELSE 0 END) AS to_do,
+        SUM(CASE WHEN tasks.status = 'In Progress' THEN 1 ELSE 0 END) AS in_progress,
+        SUM(CASE WHEN tasks.status = 'Done' THEN 1 ELSE 0 END) AS completed,
+        SUM(CASE WHEN tasks.status = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled
+        FROM reporter_project AS projects
+        JOIN reporter_task AS tasks ON projects.id = tasks.project_id
+        GROUP BY projects.id
+    """
+    )
+   
 
-    # tableProjects =Project.objects.annotate(
-    #     to_do=Sum(Case(When(tasks__status='To Do', then=1), default=0, output_field=models.IntegerField())),
-    #     in_progress=Sum(Case(When(tasks__status='In Progress', then=1), default=0, output_field=models.IntegerField())),
-    #     completed=Sum(Case(When(tasks__status='Done', then=1), default=0, output_field=models.IntegerField())),
-    #     cancelled=Sum(Case(When(tasks__status='Cancelled', then=1), default=0, output_field=models.IntegerField()))
-    # ).values('id', 'name', 'status', 'to_do', 'in_progress', 'completed', 'cancelled')
-
+    paginator = Paginator(tableProjects, items_per_page)
+    current_page_data = paginator.get_page(page)
    
     return render(request, 'index.html', {
-        'tableProjects': getTableProjects(),
+        'tableProjects': current_page_data,
         'projects':{
             'value': totalProjects,
             'subvalue': activeProjects, 
@@ -80,10 +73,9 @@ def data_view(request):
         
     })
 
-# views.py
 
 def export_csv(request):
-    status_filter = request.GET.getlist('status_filter')  # Use getlist to handle multiple selections
+    status_filter = request.GET.getlist('status_filter') 
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="tableProjects.csv"'
@@ -99,9 +91,10 @@ def export_csv(request):
         header.append('Done')
     if ('Cancelled' in status_filter):
         header.append('Cancelled')
+    else:
+       status_filter = ['To Do', 'In Progress', 'Done', 'Cancelled']
+       header.extend(status_filter)
 
-
-    # Construct a parameterized SQL query to accommodate multiple selections
     writer.writerow(header)
     sql_query = f"""
         SELECT projects.id, projects.name, projects.status, 
@@ -114,17 +107,10 @@ def export_csv(request):
         WHERE tasks.status IN ({', '.join(['%s']*len(status_filter))})
         GROUP BY projects.id
     """
-    # sql_query = """
-    #     SELECT projects.id, projects.name, projects.status, 
-    #     SUM(CASE WHEN tasks.status = 'To Do' THEN 1 ELSE 0 END) AS to_do,
-    #     SUM(CASE WHEN tasks.status = 'In Progress' THEN 1 ELSE 0 END) AS in_progress,
-    #     SUM(CASE WHEN tasks.status = 'Done' THEN 1 ELSE 0 END) AS completed,
-    #     SUM(CASE WHEN tasks.status = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled
-    #     FROM reporter_project AS projects
-    #     JOIN reporter_task AS tasks ON projects.id = tasks.project_id
-    #     WHERE tasks.status IN %s
-    #     GROUP BY projects.id
-    # """
+    print(sql_query, status_filter)
+
+    
+   
     with connection.cursor() as cursor:
         cursor.execute(sql_query, status_filter)
         results = cursor.fetchall()

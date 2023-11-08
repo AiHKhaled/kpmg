@@ -1,8 +1,10 @@
 <div class="preview flex min-h-[350px] w-full justify-center items-center">
   <div class="relative w-full overflow-auto">
     <table class="w-full caption-bottom text-sm">
+     
       <caption class="mt-4 text-sm text-muted-foreground">
         A list of your recent invoices.
+        
       </caption>
       <thead class="[&amp;_tr]:border-b">
         <tr
@@ -73,6 +75,21 @@
 
         {% endfor %}
       </tbody>
+      
     </table>
+    <div class="space-x-2 flex items-center justify-end  pb-8">
+        <a
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
+          href="?page=1"
+        >
+          Previous
+        </a>
+        <a
+          class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
+          href="?page=1"
+        >
+          Next
+        </a>
+    </div>
   </div>
 </div>

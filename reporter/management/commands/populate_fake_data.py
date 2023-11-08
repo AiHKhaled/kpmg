@@ -13,21 +13,21 @@ class Command(BaseCommand):
         self.stdout.write('Populating your models with fake data...')
 
         #Generate fake data for Project model
-        for _ in range(10):  # Adjust the number of projects you want
-            Project.objects.create(
-                name=fake.company(),
-                description=fake.text(max_nb_chars=200),
-                created_at=timezone.now(),
-                status=random.choice(['Active', 'Draft', 'Completed']),
-                cost=random.randint(5, 300) * 100
-            )
+        # for _ in range(10):  # Adjust the number of projects you want
+        #     Project.objects.create(
+        #         name=fake.company(),
+        #         description=fake.text(max_nb_chars=200),
+        #         created_at=timezone.now(),
+        #         status=random.choice(['Active', 'Draft', 'Completed']),
+        #         cost=random.randint(5, 300) * 100
+        #     )
 
        # Generate fake data for Task model
-        for _ in range(50):  # Adjust the number of tasks you want
+        for _ in range(60):  # Adjust the number of tasks you want
             Task.objects.create(
                 name=fake.job(),
                 user_id=random.randint(1,2),  # Adjust the range based on your User IDs
-                project_id=random.randint(22, 31),  # Adjust the range based on your Project IDs
+                project_id=random.randint(52, 71),  # Adjust the range based on your Project IDs
                 status=random.choice(['To Do', 'In Progress', 'Done', 'Cancelled']),
                 created_at=timezone.now()
             )

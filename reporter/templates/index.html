@@ -9,9 +9,9 @@
     <section class="container max-w-5xl mt-12 mx-auto space-y-8">
       <div>{% include "_cards.html" %}</div>
       <div>
-        <div class="flex justify-between">
+        <div class="flex justify-between items-center">
           <h2 class="text-2xl font-semibold pb-3">Projects</h2>
-          <form class="flex gap-4" method="get" action="{% url 'export_csv' %}">
+          <form class="flex gap-4 " method="get" action="{% url 'export_csv' %}">
             <select class="w-32 rounded-md px-2" name="status_filter">
               <option value="">All</option>
               <option value="To Do">To Do</option>
@@ -20,9 +20,9 @@
               <option value="Cancelled">Cancelled</option>
             </select>
             <button
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-cyan-200 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50 hover:bg-green-400 text-gray-200 bg-green-500 h-10 px-4 py-2 gap-2"
             >
-              Export as CSV
+              Export as CSV {% heroicon_outline "document" width="18" %}
             </button>
           </form>
         </div>

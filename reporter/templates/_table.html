@@ -1,0 +1,78 @@
+<div class="preview flex min-h-[350px] w-full justify-center items-center">
+  <div class="relative w-full overflow-auto">
+    <table class="w-full caption-bottom text-sm">
+      <caption class="mt-4 text-sm text-muted-foreground">
+        A list of your recent invoices.
+      </caption>
+      <thead class="[&amp;_tr]:border-b">
+        <tr
+          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+        >
+          <th
+            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 w-[100px]"
+          >
+            Name
+          </th>
+          <th
+            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
+          >
+            Status
+          </th>
+          <th
+            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
+          >
+            To Do
+          </th>
+          <th
+            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
+          >
+            In Progress
+          </th>
+          <th
+            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
+          >
+            Cancelled
+          </th>
+          <th
+            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
+          >
+            Done
+          </th>
+        </tr>
+      </thead>
+      <tbody class="[&amp;_tr:last-child]:border-0">
+        {% for project in tableProjects %}
+        <tr
+          class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+        >
+          <td
+            class="p-4 align-middle whitespace-nowrap [&amp;:has([role=checkbox])]:pr-0 font-medium"
+          >
+            {{ project.name }}
+          </td>
+          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+            <div
+              class="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {% if project.status == 'Active' %} bg-green-500 text-white {% elif project.status == 'Draft' %} bg-gray-300 text-zinc-600 {% else %} bg-blue-500 text-white {% endif %}"
+            >
+              {{ project.status }}
+            </div>
+          </td>
+          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+            {{ project.to_do}}
+          </td>
+          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+            {{ project.in_progress}}
+          </td>
+          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+            {{ project.cancelled}}
+          </td>
+          <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+            {{ project.completed}}
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

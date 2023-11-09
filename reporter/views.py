@@ -1,24 +1,20 @@
 from django.shortcuts import render
-from .models import Project, Task
 from django.db.models import Sum
-import csv
 from django.http import HttpResponse
 from django.db import connection
-
 from django.core.paginator import Paginator
+
+from .models import Project, Task
+from .utils import get_project_stats
+import csv
 
 
 def data_view(request):
     
     page = request.GET.get('page', 1)
-    items_per_page = 10  # Adjust this as needed
+    items_per_page = 10
 
-
-    totalProjects = Project.objects.count()
-    activeProjects = Project.objects.filter(status='Active').count() 
-    activeProjects  = str(activeProjects * 100 / totalProjects) + "%" 
-
-
+    stats = get_project_stats()  
     revenue = Project.objects.filter(status='Completed').aggregate(Sum('cost')) 
     monthly_revenue = Project.objects.raw(
         """
@@ -50,8 +46,9 @@ def data_view(request):
     return render(request, 'index.html', {
         'tableProjects': current_page_data,
         'projects':{
-            'value': totalProjects,
-            'subvalue': activeProjects, 
+            
+            'value': stats['total'],
+            'subvalue':str(stats['active'] * 100 / stats['total'] )+ "%", 
             "icon": "folder-open",
             "title": "Total Projects",
             "subtitle": "currently active"
@@ -91,7 +88,7 @@ def export_csv(request):
         header.append('Done')
     if ('Cancelled' in status_filter):
         header.append('Cancelled')
-    else:
+    if not status_filter:
        status_filter = ['To Do', 'In Progress', 'Done', 'Cancelled']
        header.extend(status_filter)
 
@@ -107,14 +104,11 @@ def export_csv(request):
         WHERE tasks.status IN ({', '.join(['%s']*len(status_filter))})
         GROUP BY projects.id
     """
-    print(sql_query, status_filter)
 
-    
-   
     with connection.cursor() as cursor:
         cursor.execute(sql_query, status_filter)
         results = cursor.fetchall()
-
+        
 
     for row in results:
         values = [row[0], row[1], row[2]]
